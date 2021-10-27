@@ -1,0 +1,159 @@
+
+
+================================================================
+== Synthesis Summary Report of 'dot_prod_kernel'
+================================================================
++ General Information: 
+    * Date:           Wed Oct 27 02:01:48 2021
+    * Version:        2021.2 (Build 3367213 on Tue Oct 19 02:47:39 MDT 2021)
+    * Project:        dot
+    * Solution:       solution1 (Vitis Kernel Flow Target)
+    * Product family: virtexuplus
+    * Target device:  xcvu9p-flgb2104-2-i
+    
+
++ Performance & Resource Estimates: 
+    
+    PS: '+' for module; 'o' for loop; '*' for dataflow
+    +---------------------------------------------+--------+-------+---------+-----------+----------+---------+------+----------+---------+---------+------------+------------+-----+
+    |                   Modules                   |  Issue |       | Latency |  Latency  | Iteration|         | Trip |          |         |         |            |            |     |
+    |                   & Loops                   |  Type  | Slack | (cycles)|    (ns)   |  Latency | Interval| Count| Pipelined|  BRAM   |   DSP   |     FF     |     LUT    | URAM|
+    +---------------------------------------------+--------+-------+---------+-----------+----------+---------+------+----------+---------+---------+------------+------------+-----+
+    |+ dot_prod_kernel                            |  Timing|  -0.25|    12509|  5.004e+04|         -|    12510|     -|        no|  2 (~0%)|  3 (~0%)|  1982 (~0%)|  2668 (~0%)|    -|
+    | + dot_prod_kernel_Pipeline_VITIS_LOOP_22_1  |  Timing|  -0.25|    12367|  4.947e+04|         -|    12367|     -|        no|        -|  3 (~0%)|   701 (~0%)|   747 (~0%)|    -|
+    |  o VITIS_LOOP_22_1                          |      II|   2.92|    12365|  4.946e+04|        81|        3|  4096|       yes|        -|        -|           -|           -|    -|
+    +---------------------------------------------+--------+-------+---------+-----------+----------+---------+------+----------+---------+---------+------------+------------+-----+
+
+
+================================================================
+== HW Interfaces
+================================================================
+* M_AXI
++------------+------------+---------------+---------+--------+----------+-----------+--------------+--------------+-------------+-------------+-------------------+
+| Interface  | Data Width | Address Width | Latency | Offset | Register | Max Widen | Max Read     | Max Write    | Num Read    | Num Write   | Resource Estimate |
+|            | (SW->HW)   |               |         |        |          | Bitwidth  | Burst Length | Burst Length | Outstanding | Outstanding |                   |
++------------+------------+---------------+---------+--------+----------+-----------+--------------+--------------+-------------+-------------+-------------------+
+| m_axi_gmem | 32 -> 32   | 64            | 64      | slave  | 0        | 512       | 16           | 16           | 16          | 16          | BRAM=2            |
++------------+------------+---------------+---------+--------+----------+-----------+--------------+--------------+-------------+-------------+-------------------+
+
+* S_AXILITE Interfaces
++---------------+------------+---------------+--------+----------+
+| Interface     | Data Width | Address Width | Offset | Register |
++---------------+------------+---------------+--------+----------+
+| s_axi_control | 32         | 6             | 16     | 0        |
++---------------+------------+---------------+--------+----------+
+
+* S_AXILITE Registers
++---------------+-----------+--------+-------+--------+----------------------------------+------------------------------------------------------------------------+
+| Interface     | Register  | Offset | Width | Access | Description                      | Bit Fields                                                             |
++---------------+-----------+--------+-------+--------+----------------------------------+------------------------------------------------------------------------+
+| s_axi_control | CTRL      | 0x00   | 32    | RW     | Control signals                  | 0=AP_START 1=AP_DONE 2=AP_IDLE 3=AP_READY 4=AP_CONTINUE 7=AUTO_RESTART |
+| s_axi_control | GIER      | 0x04   | 32    | RW     | Global Interrupt Enable Register | 0=Enable                                                               |
+| s_axi_control | IP_IER    | 0x08   | 32    | RW     | IP Interrupt Enable Register     | 0=CHAN0_INT_EN 1=CHAN1_INT_EN 5=CHAN2_INT_EN                           |
+| s_axi_control | IP_ISR    | 0x0c   | 32    | RW     | IP Interrupt Status Register     | 0=CHAN0_INT_ST 1=CHAN1_INT_ST 5=CHAN2_INT_ST                           |
+| s_axi_control | a_1       | 0x10   | 32    | W      | Data signal of a                 |                                                                        |
+| s_axi_control | a_2       | 0x14   | 32    | W      | Data signal of a                 |                                                                        |
+| s_axi_control | b_1       | 0x1c   | 32    | W      | Data signal of b                 |                                                                        |
+| s_axi_control | b_2       | 0x20   | 32    | W      | Data signal of b                 |                                                                        |
+| s_axi_control | c_1       | 0x28   | 32    | W      | Data signal of c                 |                                                                        |
+| s_axi_control | c_2       | 0x2c   | 32    | W      | Data signal of c                 |                                                                        |
+| s_axi_control | num_elems | 0x34   | 32    | W      | Data signal of num_elems         |                                                                        |
++---------------+-----------+--------+-------+--------+----------------------------------+------------------------------------------------------------------------+
+
+* TOP LEVEL CONTROL
++-----------+---------------+-----------+
+| Interface | Type          | Ports     |
++-----------+---------------+-----------+
+| ap_clk    | clock         | ap_clk    |
+| ap_rst_n  | reset         | ap_rst_n  |
+| interrupt | interrupt     | interrupt |
+| ap_ctrl   | ap_ctrl_chain |           |
++-----------+---------------+-----------+
+
+
+================================================================
+== SW I/O Information
+================================================================
+* Top Function Arguments
++-----------+-----------+---------------+
+| Argument  | Direction | Datatype      |
++-----------+-----------+---------------+
+| a         | inout     | float const * |
+| b         | inout     | float const * |
+| c         | inout     | float*        |
+| num_elems | in        | int const     |
++-----------+-----------+---------------+
+
+* SW-to-HW Mapping
++-----------+---------------+-----------+----------+-------------------------------------+
+| Argument  | HW Interface  | HW Type   | HW Usage | HW Info                             |
++-----------+---------------+-----------+----------+-------------------------------------+
+| a         | m_axi_gmem    | interface |          |                                     |
+| a         | s_axi_control | register  | offset   | name=a_1 offset=0x10 range=32       |
+| a         | s_axi_control | register  | offset   | name=a_2 offset=0x14 range=32       |
+| b         | m_axi_gmem    | interface |          |                                     |
+| b         | s_axi_control | register  | offset   | name=b_1 offset=0x1c range=32       |
+| b         | s_axi_control | register  | offset   | name=b_2 offset=0x20 range=32       |
+| c         | m_axi_gmem    | interface |          |                                     |
+| c         | s_axi_control | register  | offset   | name=c_1 offset=0x28 range=32       |
+| c         | s_axi_control | register  | offset   | name=c_2 offset=0x2c range=32       |
+| num_elems | s_axi_control | register  |          | name=num_elems offset=0x34 range=32 |
++-----------+---------------+-----------+----------+-------------------------------------+
+
+
+================================================================
+== M_AXI Burst Information
+================================================================
+ Note: All burst requests might be further partitioned into multiple requests during RTL generation based on max_read_burst_length or max_write_burst_length settings.
+
+* Inferred Bursts and Widening Missed
++--------------+----------+-----------------+----------------------------------------------------------------------------------------+------------+---------------------------+
+| HW Interface | Variable | Loop            | Problem                                                                                | Resolution | Location                  |
++--------------+----------+-----------------+----------------------------------------------------------------------------------------+------------+---------------------------+
+| m_axi_gmem   | a        | VITIS_LOOP_22_1 | Sequential access length is not divisible by 2                                         | 214-234    | dot_prod_kernel.cpp:22:20 |
+| m_axi_gmem   | b        | VITIS_LOOP_22_1 | Sequential access length is not divisible by 2                                         | 214-234    | dot_prod_kernel.cpp:22:20 |
+| m_axi_gmem   |          |                 | Could not burst due to multiple potential reads to the same bundle in the same region. | 214-224    | dot_prod_kernel.cpp:22:20 |
++--------------+----------+-----------------+----------------------------------------------------------------------------------------+------------+---------------------------+
+
+    * Resolution URL: www.xilinx.com/cgi-bin/docs/rdoc?v=2021.2;t=hls+guidance;d=XXX-YYY.html (replace XXX-YYY with column value)
+
+================================================================
+== Bind Op Report
+================================================================
++---------------------------------------------+-----+--------+------------+------+--------+---------+
+| Name                                        | DSP | Pragma | Variable   | Op   | Impl   | Latency |
++---------------------------------------------+-----+--------+------------+------+--------+---------+
+| + dot_prod_kernel                           | 3   |        |            |      |        |         |
+|  + dot_prod_kernel_Pipeline_VITIS_LOOP_22_1 | 3   |        |            |      |        |         |
+|    add_ln22_fu_152_p2                       | -   |        | add_ln22   | add  | fabric | 0       |
+|    add_ln24_fu_162_p2                       | -   |        | add_ln24   | add  | fabric | 0       |
+|    add_ln24_1_fu_178_p2                     | -   |        | add_ln24_1 | add  | fabric | 0       |
+|    fmul_32ns_32ns_32_4_max_dsp_1_U2         | 3   |        | mul        | fmul | maxdsp | 3       |
+|    fadd_32ns_32ns_32_4_no_dsp_1_U1          | -   |        | add        | fadd | fabric | 3       |
++---------------------------------------------+-----+--------+------------+------+--------+---------+
+
+
+================================================================
+== Bind Storage Report
+================================================================
+  No bind storage info in design
+
+================================================================
+== User Pragma Report
+================================================================
+* Valid Pragma Syntax
++-----------+---------------------------------------------+-------------------------------------------+
+| Type      | Options                                     | Location                                  |
++-----------+---------------------------------------------+-------------------------------------------+
+| interface | m_axi port = a offset = slave bundle = gmem | dot_prod_kernel.cpp:7 in dot_prod_kernel  |
+| interface | m_axi port = b offset = slave bundle = gmem | dot_prod_kernel.cpp:8 in dot_prod_kernel  |
+| interface | m_axi port = c offset = slave bundle = gmem | dot_prod_kernel.cpp:9 in dot_prod_kernel  |
+| interface | s_axilite port = a bundle = control         | dot_prod_kernel.cpp:10 in dot_prod_kernel |
+| interface | s_axilite port = b bundle = control         | dot_prod_kernel.cpp:11 in dot_prod_kernel |
+| interface | s_axilite port = c bundle = control         | dot_prod_kernel.cpp:12 in dot_prod_kernel |
+| interface | s_axilite port = num_elems bundle = control | dot_prod_kernel.cpp:13 in dot_prod_kernel |
+| interface | s_axilite port = return bundle = control    | dot_prod_kernel.cpp:14 in dot_prod_kernel |
+| pipeline  | II=1                                        | dot_prod_kernel.cpp:23 in dot_prod_kernel |
++-----------+---------------------------------------------+-------------------------------------------+
+
+
